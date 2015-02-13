@@ -20,7 +20,14 @@ repositories {
 
 dependencies {
 
+  compile ratpack.dependency("jackson")
+  compile ratpack.dependency("rx")
+  compile ratpack.dependency("hikari")
+
   runtime 'org.slf4j:slf4j-simple:1.7.7'
+
+  compile 'org.flywaydb:flyway-core:3.1'
+  compile 'org.postgresql:postgresql:9.3-1102-jdbc41'
 
   testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 }
