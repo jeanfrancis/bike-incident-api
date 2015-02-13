@@ -1,2 +1,5 @@
 build
 .gradle
+bike-incident-registry-api.iml
+bike-incident-registry-api.ipr
+bike-incident-registry-api.iws
