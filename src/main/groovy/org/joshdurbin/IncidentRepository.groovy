@@ -41,9 +41,12 @@ class IncidentRepository {
   }
 
   Observable<Long> insert(Incident incident) {
-    Observable.from(sql.executeInsert("INSERT INTO incident (createAt, description) VALUES (${new Timestamp(incident.createAt.getTime())}, $incident.description) RETURNING id")).map {
-      it.id as Long
+
+    Observable.from(sql.executeInsert("INSERT INTO incident (createAt, description) VALUES (${new Timestamp(incident.createAt.getTime())}, $incident.description)")).map {
+
+      it.first() as Long
     }.single()
+
   }
 
   def delete(Long id) {
