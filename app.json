@@ -1,0 +1,12 @@
+{
+  "name": "bike-incident-registry-api",
+  "description": "Bike Incident Registry API",
+  "keywords": [
+    "groovy",
+    "ratpack",
+  ],
+  "env": {
+    "BUILDPACK_URL": "https://github.com/heroku/heroku-buildpack-gradle",
+    "JAVA_OPTS": "-Xmx384m -Xss512k -XX:+UseCompressedOops"
+  }
+}
