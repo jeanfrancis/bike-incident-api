@@ -1,48 +1,12 @@
-Ratpack project template
------------------------------
+Bike Incident Registry API
+----------------
 
-You have just created a basic Groovy Ratpack application. It doesn't do much
-at this point, but we have set you up with a standard project structure, a
-simple home page, and Spock for writing tests (because you'd be mad not to
-use it).
+[![Circle CI](https://circleci.com/gh/joshdurbin/bike-incident-registry-api.svg?style=svg)](https://circleci.com/gh/joshdurbin/bike-incident-registry-api)
 
-In this project you get:
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/joshdurbin/bike-incident-registry-api)
 
-* A Gradle build file with pre-built Gradle wrapper
-* A tiny home page at src/ratpack/templates/index.html (it's a template)
-* A routing file at src/ratpack/ratpack.groovy
-* Reloading enabled in build.gradle
-* A standard project structure:
+Copyright &copy; 2015 Josh Durbin
 
-    <proj>
-      |
-      +- src
-          |
-          +- ratpack
-          |     |
-          |     +- ratpack.groovy
-          |     +- ratpack.properties
-          |     +- public          // Static assets in here
-          |          |
-          |          +- images
-          |          +- lib
-          |          +- scripts
-          |          +- styles
-          |
-          +- main
-          |   |
-          |   +- groovy
-                   |
-                   +- // App classes in here!
-          |
-          +- test
-              |
-              +- groovy
-                   |
-                   +- // Spock tests in here!
+Distributed under the [Apache License, Version 2.0][ASL2].
 
-That's it! You can start the basic app with
-
-    ./gradlew run
-
-but it's up to you to add the bells, whistles, and meat of the application.
+[ASL2]: http://www.apache.org/licenses/LICENSE-2.0.html
