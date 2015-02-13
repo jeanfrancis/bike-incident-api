@@ -5,6 +5,9 @@
     "groovy",
     "ratpack",
   ],
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ],
   "env": {
     "BUILDPACK_URL": "https://github.com/heroku/heroku-buildpack-gradle",
     "JAVA_OPTS": "-Xmx384m -Xss512k -XX:+UseCompressedOops"
