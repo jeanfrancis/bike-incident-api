@@ -1,0 +1,26 @@
+machine:
+  java:
+    version: oraclejdk8
+  timezone:
+    America/Los_Angeles
+  hosts:
+    localhost: 127.0.0.1
+  environment:
+    DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/circle_test
+
+dependencies:
+  override:
+    - ./gradlew dependencies
+
+  cache_directories:
+    - "~/.gradle"
+
+test:
+  override:
+    - ./gradlew clean test --stacktrace
+
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: blooming-gorge-1236
