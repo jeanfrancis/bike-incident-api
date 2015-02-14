@@ -8,6 +8,8 @@ import ratpack.form.Form
 import ratpack.groovy.sql.SqlModule
 import ratpack.groovy.template.TextTemplateModule
 import ratpack.hikari.HikariModule
+import ratpack.hystrix.HystrixMetricsEventStreamHandler
+import ratpack.hystrix.HystrixModule
 import ratpack.jackson.Jackson
 import ratpack.jackson.JacksonModule
 import ratpack.rx.RxRatpack
@@ -24,6 +26,7 @@ ratpack {
     add TextTemplateModule
 
     add(HikariModule) { HikariConfig config ->
+
       config.driverClassName = 'org.postgresql.Driver'
 
       def uri = new URI(System.env.DATABASE_URL ?: "postgres://test:test@localhost/bike-incident-registry-api")
@@ -44,6 +47,7 @@ ratpack {
     add new SqlModule()
     add new JacksonModule()
     add new IncidentModule()
+    add new HystrixModule().sse()
 
     bindInstance Service, new Service() {
 
@@ -57,7 +61,7 @@ ratpack {
     }
   }
 
-  handlers {
+  handlers { IncidentService incidentService ->
     get {
       render groovyTemplate("index.html", title: "Bike Incident Registry API")
     }
@@ -66,13 +70,13 @@ ratpack {
 
       byMethod {
 
-        get { IncidentService incidentService ->
+        get {
           incidentService.all().subscribe { List<Incident> incidents ->
             render Jackson.json(incidents)
           }
         }
 
-        post { IncidentService incidentService ->
+        post {
 
           Form form = parse(Form)
 
@@ -89,7 +93,7 @@ ratpack {
 
       byMethod {
 
-        get { IncidentService incidentService ->
+        get {
 
           Long id = pathTokens.id as Long
 
@@ -98,7 +102,7 @@ ratpack {
           }
         }
 
-        delete { IncidentService incidentService ->
+        delete {
 
           Long id = pathTokens.id as Long
 
@@ -110,5 +114,9 @@ ratpack {
         }
       }
     }
+
+    get("hystrix.stream", new HystrixMetricsEventStreamHandler())
+
+    assets "public"
   }
 }

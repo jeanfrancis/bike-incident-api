@@ -1,18 +1,26 @@
 package org.joshdurbin
 
 import com.google.inject.Inject
+import com.netflix.hystrix.HystrixCommandGroupKey
+import com.netflix.hystrix.HystrixCommandKey
+import com.netflix.hystrix.HystrixObservableCommand
+import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.flywaydb.core.Flyway
+import ratpack.exec.ExecControl
 import rx.Observable
 
 import java.sql.Timestamp
 
+import static ratpack.rx.RxRatpack.observeEach
+
 @Slf4j
 class IncidentRepository {
 
-  @Inject
-  private Sql sql
+  private final Sql sql
+  private final ExecControl execControl
+  private static final HystrixCommandGroupKey hystrixCommandGroupKey = HystrixCommandGroupKey.Factory.asKey("sql-incidentrepo")
 
   void initialize() {
     log.info "Creating tables"
@@ -22,10 +30,29 @@ class IncidentRepository {
     flyway.migrate()
   }
 
-  Observable<List<Incident>> findAll() {
-    Observable.from(sql.rows("SELECT id, createAt, description FROM incident ORDER BY createAt")).map {
-      new Incident(id: it.id, createAt: it.createAt, description: it.description)
-    }.toList()
+  @Inject
+  public IncidentRepository(Sql sql, ExecControl execControl) {
+    this.sql = sql
+    this.execControl = execControl
+  }
+
+  Observable<GroovyRowResult> findAll() {
+
+    return new HystrixObservableCommand<GroovyRowResult>(
+      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("getAll"))) {
+
+      @Override
+      protected rx.Observable<GroovyRowResult> run() {
+        observeEach(execControl.blocking {
+          sql.rows("SELECT id, createAt, description FROM incident ORDER BY createAt")
+        })
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "db-incidentrepo-all"
+      }
+    }.toObservable()
   }
 
   Observable<Incident> get(Long id) {
