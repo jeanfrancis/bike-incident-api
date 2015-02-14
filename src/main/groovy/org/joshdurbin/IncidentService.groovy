@@ -2,6 +2,7 @@ package org.joshdurbin
 
 import com.google.inject.Inject
 import groovy.util.logging.Slf4j
+import rx.Observable
 
 @Slf4j
 class IncidentService {
@@ -13,8 +14,10 @@ class IncidentService {
     repository.initialize()
   }
 
-  def all() {
-    repository.findAll()
+  Observable<List<Incident>> all() {
+    repository.findAll().map {
+      new Incident(id: it.id, createAt: it.createAt, description: it.description)
+    }.toList()
   }
 
   def get(Long id) {
