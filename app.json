@@ -1,6 +1,6 @@
 {
-  "name": "bike-incident-registry-api",
-  "description": "Bike Incident Registry API",
+  "name": "bike-incident-api",
+  "description": "Bike Incident API",
   "keywords": [
     "groovy",
     "ratpack"
