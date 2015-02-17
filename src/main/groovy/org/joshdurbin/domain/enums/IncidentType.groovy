@@ -1,0 +1,11 @@
+package org.joshdurbin.domain.enums
+
+enum IncidentType {
+
+  PROPERTY_DAMAGE,
+  POSSIBLE_INJURY,
+  NON_INCAPACITATING_INJURY,
+  INCAPACITATING_INJURY,
+  FATALITY,
+  UNKNOWN
+}
