@@ -71,7 +71,7 @@ ratpack {
       byMethod {
 
         get {
-          incidentService.all().subscribe { List<Incident> incidents ->
+          incidentService.all().toList().subscribe { List<Incident> incidents ->
             render Jackson.json(incidents)
           }
         }
@@ -102,13 +102,34 @@ ratpack {
           }
         }
 
+        put {
+
+          Long id = pathTokens.id as Long
+
+          incidentService.get(id).subscribe { Incident incident ->
+
+            if (!incident) {
+              clientError(404)
+
+            } else {
+
+              Form form = parse(Form)
+              incident.description = form.description
+
+              incidentService.update(incident).subscribe() { Long updatedID ->
+                redirect "/incidents/${updatedID}"
+              }
+            }
+
+          }
+        }
+
         delete {
 
           Long id = pathTokens.id as Long
 
-          context.blocking {
-            incidentService.delete(id)
-          }.then {
+          incidentService.delete(id).subscribe {
+
             render Jackson.json('success')
           }
         }

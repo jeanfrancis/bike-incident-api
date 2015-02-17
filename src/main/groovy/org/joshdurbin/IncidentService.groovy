@@ -14,26 +14,31 @@ class IncidentService {
     repository.initialize()
   }
 
-  Observable<List<Incident>> all() {
+  Observable<Incident> all() {
     repository.findAll().map {
       new Incident(id: it.id, createAt: it.createAt, description: it.description)
-    }.toList()
+    }
   }
 
-  def get(Long id) {
-    repository.get(id)
+  Observable<Incident> get(Long id) {
+    repository.getByID(id).map {
+      new Incident(id: it.id, createAt: it.createAt, description: it.description)
+    }
   }
 
-  def create(String description) {
+  Observable<Long> create(String description) {
     Incident incident = new Incident(createAt: new Date(), description: description)
-    repository.insert(incident)
+    repository.insert(incident).map {
+
+      it?.first()?.first()
+    }
   }
 
-  def update(Incident incident) {
-    repository.update(incident)
+  Observable<Long> update(Incident incident) {
+    repository.update(incident).map { it }
   }
 
-  def delete(long id) {
-    repository.delete(id)
+  Observable<Void> delete(Long id) {
+    repository.deleteByID(id)
   }
 }

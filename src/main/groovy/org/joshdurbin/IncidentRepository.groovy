@@ -13,6 +13,7 @@ import rx.Observable
 
 import java.sql.Timestamp
 
+import static ratpack.rx.RxRatpack.observe
 import static ratpack.rx.RxRatpack.observeEach
 
 @Slf4j
@@ -39,10 +40,10 @@ class IncidentRepository {
   Observable<GroovyRowResult> findAll() {
 
     return new HystrixObservableCommand<GroovyRowResult>(
-      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("getAll"))) {
+      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("findAll"))) {
 
       @Override
-      protected rx.Observable<GroovyRowResult> run() {
+      protected Observable<GroovyRowResult> run() {
         observeEach(execControl.blocking {
           sql.rows("SELECT id, createAt, description FROM incident ORDER BY createAt")
         })
@@ -50,33 +51,72 @@ class IncidentRepository {
 
       @Override
       protected String getCacheKey() {
-        return "db-incidentrepo-all"
+        return "incidentrepo-findall"
       }
     }.toObservable()
   }
 
-  Observable<Incident> get(Long id) {
-    Observable.from(sql.rows("SELECT id, createAt, description FROM incident WHERE id=$id")).map {
-      new Incident(id: it.id, createAt: it.createAt, description: it.description)
-    }.single()
+  Observable<GroovyRowResult> getByID(Long id) {
+
+    return new HystrixObservableCommand<GroovyRowResult>(
+      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("getByID"))) {
+
+      @Override
+      protected Observable<GroovyRowResult> run() {
+        observe(execControl.blocking {
+          sql.firstRow("SELECT id, createAt, description FROM incident WHERE id=$id")
+        })
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "incidentrepo-getbyid"
+      }
+    }.toObservable().single()
   }
 
-  Observable<Long> update(Incident incident) {
-    sql.executeUpdate("UPDATE incident set description=$incident.description WHERE id=$incident.id")
+  Observable<GroovyRowResult> update(Incident incident) {
 
-    Observable.just(incident.id)
+    return new HystrixObservableCommand<GroovyRowResult>(
+      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("update"))) {
+
+      @Override
+      protected Observable<GroovyRowResult> run() {
+        observe(execControl.blocking {
+          sql.executeUpdate("UPDATE incident set description=$incident.description WHERE id=$incident.id")
+        })
+      }
+
+    }.toObservable()
   }
 
-  Observable<Long> insert(Incident incident) {
+  Observable<GroovyRowResult> insert(Incident incident) {
 
-    Observable.from(sql.executeInsert("INSERT INTO incident (createAt, description) VALUES (${new Timestamp(incident.createAt.getTime())}, $incident.description)")).map {
+    return new HystrixObservableCommand<GroovyRowResult>(
+      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("insert"))) {
 
-      it.first() as Long
-    }.single()
+      @Override
+      protected Observable<GroovyRowResult> run() {
+        observe(execControl.blocking {
+          sql.executeInsert("INSERT INTO incident (createAt, description) VALUES (${new Timestamp(incident.createAt.getTime())}, $incident.description)")
+        })
+      }
 
+    }.toObservable()
   }
 
-  def delete(Long id) {
-    sql.execute("DELETE FROM incident WHERE id=$id")
+  Observable<Void> deleteByID(Long id) {
+
+    return new HystrixObservableCommand<Void>(
+      HystrixObservableCommand.Setter.withGroupKey(hystrixCommandGroupKey).andCommandKey(HystrixCommandKey.Factory.asKey("deleteByID"))) {
+
+      @Override
+      protected Observable<Void> run() {
+        observe(execControl.blocking {
+          sql.executeUpdate("DELETE FROM incident WHERE id=$id")
+        })
+      }
+
+    }.toObservable()
   }
 }
