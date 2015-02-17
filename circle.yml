@@ -23,4 +23,4 @@ deployment:
   staging:
     branch: master
     heroku:
-      appname: bike-incident-registry-api
+      appname: bike-incident-api
