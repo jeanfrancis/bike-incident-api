@@ -29,7 +29,7 @@ ratpack {
 
       config.driverClassName = 'org.postgresql.Driver'
 
-      def uri = new URI(System.env.DATABASE_URL ?: "postgres://test:test@localhost/bike-incident-registry-api")
+      def uri = new URI(System.env.DATABASE_URL ?: "postgres://test:test@localhost/bike-incident-api")
 
       def url = "jdbc:postgresql://${uri.host}${uri.path}"
       def username = uri.userInfo.split(":")[0]
